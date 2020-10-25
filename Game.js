@@ -6,15 +6,21 @@ import Score from './elements/Score.js';
 import Lives from './elements/Lives.js';
 import Level from './elements/Level.js';
 import Result from './elements/Result.js';
+import WithLabel from './WithLabel.js';
 
 export default class Game {
 
+  /**
+   * @param renderer {CanvasRender}
+   * @param config {object}
+   * @param eventHandler {BrowserEventHandler}
+   * @param storage {CookieStorage}
+   */
   constructor(renderer, config, eventHandler, storage) {
     this.renderer = renderer;
     this.config = config;
     this.eventHandler = eventHandler;
     this.storage = storage;
-    this.paddleX = (renderer.getWidth() - this.config.paddle.width) / 2;
     this.scene = new Scene();
     this.paused = true;
     this.eventHandler.addKeyDownCallback(() => {this.paused = false;});
@@ -98,10 +104,13 @@ export default class Game {
     const bricks = this.scene.get('bricks');
     const level = this.scene.get('level');
     const paddle = this.scene.get('paddle');
+
+    const score = this.scene.get('score');
     bricks.forEach((brick) => {brick.reset();});
     level.incrementLevel();
     ball.reset(level.level);
     paddle.reset();
+    this.storage.addResult(score.score);
     this.pause();
   }
 
@@ -152,7 +161,7 @@ export default class Game {
       this.config.ball.fillStyle
     ));
     let paddle = new Paddle(
-      this.paddleX,
+      (this.renderer.getWidth() - this.config.paddle.width) / 2,
       this.renderer.getHeight() - this.config.paddle.height,
       this.config.paddle.width,
       this.config.paddle.height,
@@ -164,8 +173,9 @@ export default class Game {
       this.config.brick
     );
 
+    const lives = new Lives(3, 130, 20, this.config.lives.fillStyle, this.config.font);
     this.scene.add('bricks', bricks);
-    this.scene.add('lives', new Lives(3, 130, 20, this.config.lives.fillStyle, this.config.font));
+    this.scene.add('lives', WithLabel(lives, 'Lives'));
     this.scene.add('score', new Score(230, 20, this.config.score.fillStyle, this.config.font));
     this.scene.add('results', new Result(
       this.storage.getResults(),

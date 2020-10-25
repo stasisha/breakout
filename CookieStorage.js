@@ -2,6 +2,9 @@ export default class CookieStorage {
 
   cookieName = 'results';
 
+  /**
+   * @param result {number}
+   */
   addResult(result) {
     let results = this.getResults();
     if (!results) {
@@ -19,6 +22,9 @@ export default class CookieStorage {
     return JSON.parse(this.#getCookie());
   }
 
+  /**
+   * @param val {string}
+   */
   #setCookie(val) {
     const name = this.cookieName;
     const days = 365;
@@ -28,6 +34,9 @@ export default class CookieStorage {
     document.cookie = name + "=" + val + ";" + expires + ";path=/";
   }
 
+  /**
+   * @return {string}
+   */
   #getCookie() {
     const name = this.cookieName + "=";
     const decodedCookie = decodeURIComponent(document.cookie);
