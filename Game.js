@@ -3,10 +3,14 @@ import Ball from './elements/Ball.js';
 import Paddle from './elements/Paddle.js';
 import Brick from './elements/Brick.js';
 import Score from './elements/Score.js';
-import Lives from './elements/Lives.js';
+import Lives from './models/Lives.js';
 import Level from './elements/Level.js';
-import Result from './elements/Result.js';
-import WithLabel from './WithLabel.js';
+import MaxScore from './models/MaxScore.js';
+import MaxScoreText from './elements/MaxScoreText.js';
+import Text from './elements/Text.js';
+import LivesText from './elements/LivesText.js';
+import Bold from './textDecorators/Bold.js';
+import Italic from './textDecorators/Italic.js';
 
 export default class Game {
 
@@ -21,9 +25,14 @@ export default class Game {
     this.config = config;
     this.eventHandler = eventHandler;
     this.storage = storage;
+    this.maxScore = new MaxScore();
+    this.maxScoreStorage = storage.createMaxScoreStorage(this.maxScore);
+    this.maxScoreStorage.restore();
     this.scene = new Scene();
     this.paused = true;
-    this.eventHandler.addKeyDownCallback(() => {this.paused = false;});
+    this.eventHandler.addKeyDownCallback(() => {
+      this.paused = false;
+    });
     this.fillScene();
   }
 
@@ -104,13 +113,16 @@ export default class Game {
     const bricks = this.scene.get('bricks');
     const level = this.scene.get('level');
     const paddle = this.scene.get('paddle');
-
     const score = this.scene.get('score');
-    bricks.forEach((brick) => {brick.reset();});
+
+    this.maxScore.addScore(score.score);
+    this.maxScoreStorage.save();
+    bricks.forEach((brick) => {
+      brick.reset();
+    });
     level.incrementLevel();
     ball.reset(level.level);
     paddle.reset();
-    this.storage.addResult(score.score);
     this.pause();
   }
 
@@ -121,15 +133,18 @@ export default class Game {
     const level = this.scene.get('level');
     const paddle = this.scene.get('paddle');
     const lives = this.scene.get('lives');
-    const results = this.scene.get('results');
 
-    bricks.forEach((brick) => {brick.reset();});
+    this.maxScore.addScore(score.score);
+    this.maxScoreStorage.save();
+    bricks.forEach((brick) => {
+      brick.reset();
+    });
     level.reset();
     ball.reset(level.level);
     paddle.reset();
     score.reset();
     lives.reset();
-    results.maxScore = this.storage.getResults();
+
     this.pause();
   }
 
@@ -137,7 +152,6 @@ export default class Game {
     const ball = this.scene.get('ball');
     const paddle = this.scene.get('paddle');
     const level = this.scene.get('level');
-
     ball.reset(level.level);
     paddle.reset();
     this.pause();
@@ -145,11 +159,13 @@ export default class Game {
 
   render() {
     this.renderer.renderScene(this.scene);
-    requestAnimationFrame(() => {this.run();});
+    requestAnimationFrame(() => {
+      this.run();
+    });
   }
 
   fillScene() {
-    const level = new Level(1, 30, 20, this.config.lives.fillStyle, this.config.font);
+    const level = new Level(1, new Text('Level: ', 30, 20, this.config.lives.fillStyle, this.config.font));
     this.scene.add('level', level);
 
     this.scene.add('ball', new Ball(
@@ -172,17 +188,26 @@ export default class Game {
       this.config.bricks,
       this.config.brick
     );
-
-    const lives = new Lives(3, 130, 20, this.config.lives.fillStyle, this.config.font);
     this.scene.add('bricks', bricks);
-    this.scene.add('lives', WithLabel(lives, 'Lives'));
-    this.scene.add('score', new Score(230, 20, this.config.score.fillStyle, this.config.font));
-    this.scene.add('results', new Result(
-      this.storage.getResults(),
-      this.renderer.getWidth() - 130,
-      20,
-      this.config.score.fillStyle,
-      this.config.font
+
+    const liveLabel = new Text('Lives: ', 130, 20, this.config.lives.fillStyle, this.config.font);
+    const liveLabelBold = new Bold(liveLabel);
+    const liveLabelBoldItalic = new Italic(liveLabelBold);
+    const lives = new LivesText(new Lives(3), liveLabelBoldItalic);
+
+    const score = new Score(new Text('Score: ', 230, 20, this.config.score.fillStyle, this.config.font));
+    this.scene.add('lives', lives);
+    this.scene.add('score', score);
+
+    this.scene.add('maxScore', new MaxScoreText(
+      this.maxScore,
+      new Text(
+        'Max score: ',
+        this.renderer.getWidth() - 130,
+        20,
+        this.config.score.fillStyle,
+        this.config.font
+      )
     ));
   }
 

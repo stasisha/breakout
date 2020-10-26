@@ -1,30 +1,30 @@
 import Text from './Text.js';
 
-export default class Score {
-
+export default class MaxScoreText {
   /**
    * @type {Text}
    */
   #originalObject;
 
   /**
-   * @type {number}
+   * @type {MaxScore}
    */
-  #score;
+  #maxScore;
 
   /**
+   * @param maxScore {MaxScore}
    * @param text {Text}
    */
-  constructor(text) {
+  constructor(maxScore, text) {
     this.#originalObject = text;
-    this.#score = 0;
+    this.#maxScore = maxScore;
   }
 
   /**
    * @return {string}
    */
   get text() {
-    return `${ this.#originalObject.text }${ this.#score }`;
+    return `${ this.#originalObject.text }${ this.#maxScore.maxScore }`;
   }
 
   /**
@@ -62,16 +62,31 @@ export default class Score {
     return this.#originalObject.font;
   }
 
-
-  get score() {
-    return this.#score;
+  /**
+   * @param maxScore {number}
+   */
+  set maxScore(maxScore) {
+    this.#maxScore.maxScore = maxScore;
   }
 
-  incrementScore() {
-    this.#score++;
+  /**
+   * @return {number}
+   */
+  get maxScore() {
+    return this.#maxScore.maxScore;
   }
 
-  reset() {
-    this.#score = 0;
+  /**
+   * @return {Memento}
+   */
+  save() {
+    return this.#maxScore.save();
+  }
+
+  /**
+   * @param memento {Memento}
+   */
+  restore(memento) {
+    this.maxScore.restore(memento);
   }
 }

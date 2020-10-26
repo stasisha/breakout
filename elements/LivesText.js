@@ -1,6 +1,6 @@
 import Text from './Text.js';
 
-export default class Score {
+export default class LivesText {
 
   /**
    * @type {Text}
@@ -8,23 +8,24 @@ export default class Score {
   #originalObject;
 
   /**
-   * @type {number}
+   * @type {Lives}
    */
-  #score;
+  #lives;
 
   /**
+   * @param lives {Lives}
    * @param text {Text}
    */
-  constructor(text) {
+  constructor(lives, text) {
     this.#originalObject = text;
-    this.#score = 0;
+    this.#lives = lives;
   }
 
   /**
    * @return {string}
    */
   get text() {
-    return `${ this.#originalObject.text }${ this.#score }`;
+    return `${ this.#originalObject.text }${ this.#lives.lives }`;
   }
 
   /**
@@ -62,16 +63,15 @@ export default class Score {
     return this.#originalObject.font;
   }
 
-
-  get score() {
-    return this.#score;
-  }
-
-  incrementScore() {
-    this.#score++;
+  decrementLives() {
+    this.#lives.decrementLives();
   }
 
   reset() {
-    this.#score = 0;
+    this.#lives.reset();
+  }
+
+  get lives() {
+    return this.#lives.lives;
   }
 }

@@ -41,6 +41,7 @@ export default class CanvasRender {
         this.renderText(obj);
         break;
       default:
+        debugger;
         throw new Error('Not supported object type. Impossible to render.');
     }
   }

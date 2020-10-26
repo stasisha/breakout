@@ -1,22 +1,45 @@
 import Text from './Text.js';
 
-export default class Level extends Text {
-  constructor(level, x, y, fillStyle, font) {
-    super(Level.getLevelText(level), x, y, fillStyle, font);
+export default class Level {
+
+  /**
+   * @param level {number}
+   * @param text {Text}
+   */
+  constructor(level, text) {
+    this.originalObject = text;
     this.level = level;
   }
 
-  static getLevelText(level) {
-    return "Level: " + level;
+  get text() {
+    return `${ this.originalObject.text }${ this.level }`;
+  }
+
+  get type() {
+    return this.originalObject.type;
+  }
+
+  get x() {
+    return this.originalObject.x;
+  }
+
+  get y() {
+    return this.originalObject.y;
+  }
+
+  get fillStyle() {
+    return this.originalObject.fillStyle;
+  }
+
+  get font() {
+    return this.originalObject.font;
   }
 
   incrementLevel() {
     this.level++;
-    this.text = Level.getLevelText(this.level);
   }
 
   reset() {
     this.level = 1;
-    this.text = Level.getLevelText(this.level);
   }
 }
